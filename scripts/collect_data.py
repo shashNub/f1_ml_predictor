@@ -45,36 +45,6 @@ aggression_style_map = {
     "Antonio Giovinazzi": "Balanced", "Nikita Mazepin": "Aggressive", "Kimi Räikkönen": "Defensive"
 }
 
-# Grand Prix name mappings for better matching
-GP_NAME_MAPPING = {
-    "hungary": ["hungarian", "hungaroring"],
-    "belgian": ["belgium", "spa"],
-    "australian": ["australia", "melbourne"],
-    "monaco": ["monaco", "monte carlo"],
-    "austrian": ["austria", "red bull ring"],
-    "british": ["britain", "silverstone"],
-    "italian": ["italy", "monza"],
-    "spanish": ["spain", "barcelona"],
-    "french": ["france", "paul ricard"],
-    "german": ["germany", "hockenheim", "nurburgring"],
-    "dutch": ["netherlands", "zandvoort"],
-    "canadian": ["canada", "montreal"],
-    "azerbaijan": ["baku"],
-    "singapore": ["singapore", "marina bay"],
-    "japanese": ["japan", "suzuka"],
-    "brazilian": ["brazil", "sao paulo", "interlagos"],
-    "mexican": ["mexico", "mexico city"],
-    "united states": ["usa", "america", "austin", "miami", "las vegas"],
-    "qatar": ["qatar", "losail"],
-    "saudi arabian": ["saudi", "jeddah"],
-    "abu dhabi": ["abu dhabi", "yas marina"],
-    "emilia romagna": ["imola", "san marino"],
-    "portuguese": ["portugal", "portimao"],
-    "turkish": ["turkey", "istanbul"],
-    "russian": ["russia", "sochi"],
-    "vietnamese": ["vietnam", "hanoi"]
-}
-
 def collect_race_results(selected_prix=None, race_day_mode = False):
     all_data = []
     start_year = 2021
@@ -83,14 +53,7 @@ def collect_race_results(selected_prix=None, race_day_mode = False):
     if race_day_mode:
         today = datetime.date.today()
         start_year = end_year = today.year
-        # Map the input to possible variations
-        prix_lower = selected_prix.lower().strip()
-        possible_names = [prix_lower]
-        for key, variations in GP_NAME_MAPPING.items():
-            if prix_lower in variations or prix_lower == key:
-                possible_names.extend(variations)
-                possible_names.append(key)
-        selected_prix = possible_names
+        selected_prix = selected_prix
 
     for year in range(start_year, end_year+1):
         try:
@@ -100,21 +63,14 @@ def collect_race_results(selected_prix=None, race_day_mode = False):
             races = schedule[schedule['EventFormat'].str.contains("sprint", case=False) | schedule['EventFormat'].str.contains("conventional", case=False)]
 
             if race_day_mode:
-                # Try to match any of the possible names
-                prix_matches = pd.DataFrame()
-                for name in selected_prix:
-                    matches = races[races['EventName'].str.lower().str.contains(name.lower())]
-                    if not matches.empty:
-                        prix_matches = pd.concat([prix_matches, matches]).drop_duplicates()
-                        break
-                
+                prix_matches = races[races['EventName'].str.lower().str.contains(selected_prix.lower())]
                 if prix_matches.empty:
-                    exit(f"❌ No Grand Prix found matching '{selected_prix[0]}' in {year}.")
+                    exit(f"❌ No Grand Prix found matching '{selected_prix}' in {year}.")
                 
                 # Filter for races already completed (i.e., date < today)
                 past_races = prix_matches[prix_matches['EventDate'].dt.date <= today]
                 if past_races.empty:
-                    exit(f"📅 The {selected_prix[0].title()} GP has not occurred yet in {year}.")
+                    exit(f"📅 The {selected_prix.title()} GP has not occurred yet in {year}.")
 
                 # Get the most recent completed GP
                 latest_race = past_races.sort_values(by='EventDate', ascending=False).iloc[0:1]
