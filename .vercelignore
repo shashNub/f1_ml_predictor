@@ -1,0 +1,20 @@
+# Exclude heavy caches and dependencies
+frontend/node_modules/
+backend/node_modules/
+**/__pycache__/**
+
+# FastF1 caches and data
+backend/f1_cache/**
+backend/fastf1_http_cache.sqlite
+scripts/f1_cache/**
+scripts/fastf1_http_cache.sqlite
+**/*.ff1pkl
+
+# Misc
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Local Vercel metadata
+.vercel

@@ -1,0 +1,6 @@
+frontend/node_modules/
+**/__pycache__/**
+backend/f1_cache/**
+scripts/f1_cache/**
+**/*.ff1pkl
+.vercel/
