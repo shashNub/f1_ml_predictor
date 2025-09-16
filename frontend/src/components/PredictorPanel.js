@@ -56,7 +56,8 @@ const PredictorPanel = ({ prixName, setPrixName, setPredictions, setIsLoading, s
 
         try {
             const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
-            const response = await axios.post(`${baseUrl}/predict`, {
+            const apiUrl = baseUrl.endsWith('/') ? `${baseUrl}predict` : `${baseUrl}/predict`;
+            const response = await axios.post(apiUrl, {
                 prix: prixName.toLowerCase().trim(),
 
             });
